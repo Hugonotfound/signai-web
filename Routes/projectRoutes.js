@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {ProjectModel, ContraintSchema, positionSchema} = require('../models/project.js');
+const {ProjectModel, ContraintSchema, positionSchema} = require('../Models/project.js');
 const {authenticateToken, authenticateManager} = require('../Configs/auth.js');
 
 
