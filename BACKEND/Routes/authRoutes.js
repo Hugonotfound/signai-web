@@ -14,7 +14,7 @@ router.post('/register', function (req, res) {
         phone,
         company,
     } = req.body;
-    if (type === 'manager' || type === 'observator') {
+    if (type === 'manager' || type === 'observator' || phone.contain) {
         UserModel.findOne({ email: email}).then( user => {
             if (user) {
                 res.status(409).send('User already registered.');
@@ -55,7 +55,7 @@ router.post('/login', (req, res) => {
 
     UserModel.findOne({ email: email}).then( user => {
         if (!user) {
-            res.status(200).send('No user found with this email.')
+            res.status(400).send('No user found with this email.')
         } else {
             bcrypt.compare(password, user.password, (err, isMatch) => {
                 if (err) throw err;
@@ -63,7 +63,7 @@ router.post('/login', (req, res) => {
                     const accessToken = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1 days'})
                     res.status(200).json({accessToken: accessToken});
                 } else {
-                    res.status(200).send('password incorrect');
+                    res.status(400).send('password incorrect');
                 }
             });
         }
