@@ -27,7 +27,7 @@ describe('CONNECTED USER INFO ROUTE', () => {
 });
 
 describe('USER INFO ROUTE', ()=> {
-    test('correct', async () => {
+    test('correct fields', async () => {
         let logToken;
 
         const logRes = await request(app).post('/auth/login').send({

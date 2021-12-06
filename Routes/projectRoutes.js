@@ -36,7 +36,7 @@ router.post('', authenticateToken, authenticateManager, function (req, res) {
     req.body.observators.forEach((observator) => {
         observators.appendChild(observator)
     });
-    if (req.body.name) {
+    if (req.body.name && req.body.decription) {
         const project = new ProjectModel({
             name: req.body.name,
             description: req.body.description,
@@ -62,4 +62,24 @@ router.post('', authenticateToken, authenticateManager, function (req, res) {
 
 });
 
+router.get('/list', authenticateToken, authenticateManager, function (req, res) {
+    const company = req.query.company;
+    ProjectModel.find({company: company}).then( companys => {
+        if(companys) {
+            res.status(200).send(companys);
+        } else {
+            res.status(500).send('No project found with this company')
+        }
+    });
+});
+
+router.get('/', authenticateToken, authenticateManager, function (req, res) {
+    ProjectModel.findOne({id: req.query.id}).then(project => {
+        if (project) {
+            res.status(200).send(project);
+        } else {
+            res.status(500).send('No project found')
+        }
+    });
+});
 module.exports = router;
