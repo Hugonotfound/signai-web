@@ -1,85 +1,80 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const {ProjectModel, ContraintSchema, positionSchema} = require('../Models/project.js');
-const {authenticateToken, authenticateManager} = require('../Configs/auth.js');
+const Project = require("../Models/project");
+const {
+  authenticateToken,
+  authenticateManager,
+} = require("../Configs/auth.js");
 
-
-router.post('', authenticateToken, authenticateManager, function (req, res) {
-    const radius = Int(req.params.radius);
-    const creationDate = new Date();
-
-    const departPosition = new positionSchema({
-        lat: req.body.departPositionLong,
-        long: req.body.departPositionLat,
-    });
-
-//contraints
-    let contraints = [];
-    req.body.contraints.forEach(({contraint, positionLong, positionLat}) => {
-        const newPosition = new positionSchema({
-            lat: positionLong,
-            long: positionLat,
-        });
-        const newContraint = new ContraintSchema({
-            contraint: contraint,
-            position: newPosition
-        });
-        contraints.appendChild(newContraint);
-    });
-//managers
-    let managers = [];
-    req.body.managers.forEach((manager) => {
-        managers.appendChild(manager)
-    });
-//observators
-    let observators = [];
-    req.body.observators.forEach((observator) => {
-        observators.appendChild(observator)
-    });
-    if (req.body.name && req.body.decription) {
-        const project = new ProjectModel({
-            name: req.body.name,
-            description: req.body.description,
-            departCoordinates: departPosition,
-            departAddress: req.body.departAddress,
-            radius: radius,
-            contraints: contraints,
-            company: req.body.company, 
-            managers: managers,
-            observators: observators,
-            creationDate: creationDate,
-            lastEdit: creationDate
-    
-        });
-        project.save().then(project => {
-            res.status(201).json(project);
-        }).catch( err => {
-            res.status(500).send('project not saved');
-        })
-    } else {
-        res.status(400).send('missing required fields');
-    }
-
+router.get("", authenticateToken, function (req, res) {
+  if (req.query.id) {
+    Project.findById(req.query.id)
+      .then((projects) => {
+        res.status(200).send(projects);
+      })
+      .catch((err) => {
+        res.status(500).send(err);
+      });
+  } else {
+    res.status(500).send("Id missing");
+  }
 });
 
-router.get('/list', authenticateToken, authenticateManager, function (req, res) {
-    const company = req.query.company;
-    ProjectModel.find({company: company}).then( companys => {
-        if(companys) {
-            res.status(200).send(companys);
-        } else {
-            res.status(500).send('No project found with this company')
-        }
+router.get("/list", authenticateToken, function (req, res) {
+  if (req.query.company) {
+    Project.find({ company: req.query.company }).then((projects) => {
+      if (projects) {
+        res.status(200).send(projects);
+      } else {
+        res.status(500).send("No projects found");
+      }
+    });
+  } else {
+    Project.find().then((projects) => {
+      if (projects) {
+        res.status(200).send(projects);
+      } else {
+        res.status(500).send("No projects found");
+      }
+    });
+  }
+});
+
+router.post("", authenticateToken, function (req, res) {
+  let newContraints = [];
+  req.body.contraints.forEach(({ contraint, positionLong, positionLat }) => {
+    newContraint = {
+      contraint,
+      position: {
+        positionLong: positionLong,
+        positionLat: positionLat,
+      },
+    };
+    newContraints.appendChild(newContraint);
+  });
+
+  const newProject = new Project({
+    name: req.body.name,
+    description: req.body.description,
+    departPositionLong: {
+      long: req.body.departPositionLong,
+      lat: req.body.departPositionLat,
+    },
+    departAddress: req.body.departAddress,
+    radius: req.body.radius,
+    contraints: newContraints,
+    company: req.body.company,
+    managers: req.body.managers,
+    observators: req.body.observators,
+  });
+  newProject
+    .save()
+    .then((project) => {
+      res.status(201).send(project);
+    })
+    .catch((error) => {
+      res.status(500).send(error);
     });
 });
 
-router.get('/', authenticateToken, authenticateManager, function (req, res) {
-    ProjectModel.findOne({id: req.query.id}).then(project => {
-        if (project) {
-            res.status(200).send(project);
-        } else {
-            res.status(500).send('No project found')
-        }
-    });
-});
 module.exports = router;

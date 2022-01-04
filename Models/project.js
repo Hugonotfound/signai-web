@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 
+
+
 const positionSchema = mongoose.Schema({
     lat: {type: Number, required: true},
     long: {type: Number, required: true},
@@ -27,6 +29,4 @@ const projectSchema = mongoose.Schema({
 })
 
 module.exports = mongoose.model('project', projectSchema)
-module.exports = mongoose.model('contraintSchema', contraintSchema)
-module.exports = mongoose.model('positionSchema', positionSchema)
 
