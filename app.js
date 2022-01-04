@@ -1,5 +1,7 @@
 //SETUP / INITIALIZE
 const express = require('express');
+var cors = require('cors');
+
 const app = express();
 const mongoose = require('mongoose');
 require('dotenv').config()
@@ -17,6 +19,8 @@ mongoose.connect("mongodb+srv://sitpi:" + process.env.DB_PASS + "@cluster.hxvcw.
 const db = mongoose.connection;
 db.on('error', error => console.error(error));
 db.once('open', error => console.log('Connected to MongoDB database'));
+
+app.use(cors());
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
