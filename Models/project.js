@@ -24,7 +24,17 @@ const projectSchema = mongoose.Schema({
     company: {type: String, required: true},
     managers: [{type: String}],
     observators: [{type: String}],
-    creationDate: {type: Date},
+    status: {type: String, required: true},
+    createdAt: {
+        type: Date,
+        immutable: true,
+        default: () => Date.now(),
+    },
+    updatedAt: {
+        type: String,
+        immutable: true,
+        default: () => Date.now(),
+    },
     lastEdit: {type: Date, required: true},
 })
 

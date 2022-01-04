@@ -66,6 +66,7 @@ router.post("", authenticateToken, function (req, res) {
     company: req.body.company,
     managers: req.body.managers,
     observators: req.body.observators,
+    status: 'En cours'
   });
   newProject
     .save()
@@ -75,6 +76,14 @@ router.post("", authenticateToken, function (req, res) {
     .catch((error) => {
       res.status(500).send(error);
     });
+});
+
+router.put('', authenticateToken, function (req, res) {
+    if (req.query.id) {
+
+    } else {
+        res.status(500).send('Id misisng')
+    }
 });
 
 module.exports = router;
