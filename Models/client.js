@@ -4,10 +4,9 @@ const clientSchema = mongoose.Schema({
     id: mongoose.ObjectId,
     name: {type: String, required: true},
     address: {type: String, required: true},
-    postalcode: {type: Integer, required: true},
+    postalcode: {type: Number, required: true},
     city: {type: String, required: true},
-    managers: [{accoutID: String}],
+    managers: [{accountID: String}],
 })
 
 module.exports = mongoose.model('client', clientSchema)
-

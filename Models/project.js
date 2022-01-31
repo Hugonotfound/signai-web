@@ -1,6 +1,5 @@
-const mongoose = require('mongoose')
-
-
+const mongoose = require('mongoose');
+const comment = require('./comments').model('comment').schema;
 
 const positionSchema = mongoose.Schema({
     lat: {type: Number, required: true},
@@ -12,7 +11,6 @@ const contraintSchema = mongoose.Schema({
     position: positionSchema,
 
 })
-
 const projectSchema = mongoose.Schema({
     id: mongoose.ObjectId,
     name: {type: String, required: true},
@@ -31,11 +29,12 @@ const projectSchema = mongoose.Schema({
         default: () => Date.now(),
     },
     updatedAt: {
-        type: String,
+        type: Date,
         immutable: true,
         default: () => Date.now(),
     },
     lastEdit: {type: Date, required: true},
+    comments: [{comment}],
 })
 
 module.exports = mongoose.model('project', projectSchema)

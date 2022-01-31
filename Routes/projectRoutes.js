@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Project = require("../Models/project");
+const Comment = require("../Models/comments");
 const {
   authenticateToken,
   authenticateManager,
@@ -66,7 +67,7 @@ router.post("", authenticateToken, function (req, res) {
     company: req.body.company,
     managers: req.body.managers,
     observators: req.body.observators,
-    status: 'En cours'
+    status: "En cours",
   });
   newProject
     .save()
@@ -78,12 +79,65 @@ router.post("", authenticateToken, function (req, res) {
     });
 });
 
-router.put('', authenticateToken, function (req, res) {
-    if (req.query.id) {
+// router.put("", authenticateToken, function (req, res) {
+//   if (req.query.id) {
+//   } else {
+//     res.status(500).send("Id misisng");
+//   }
+// });
 
-    } else {
-        res.status(500).send('Id misisng')
-    }
+router.delete("", authenticateToken, function (req, res) {
+    Project.findOneAndDelete({ _id: req.query.id })
+        .then((project) => {
+            res.status(200).send("project deleted successfully")
+        }).catch((err) => {
+            res.status(500).send("error deleting project")
+        })
+})
+
+router.post("/:id/comment", authenticateToken, function (req, res) {
+  if (req.params.id) {
+    comment = {
+      author: req.body.author,
+      date: req.body.date,
+      message: req.body.message,
+    };
+    Project.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $push: { comments: comment },
+      }
+    )
+      .then((project) => {
+        res.status(201).send(project.comments);
+      })
+      .catch((err) => {
+        res.status(500).send(err);
+      });
+  }
+});
+
+router.get("/:id/comments", authenticateToken, function (req, res) {
+  if (req.params.id) {
+    Project.findById(req.params.id)
+      .then((project) => {
+        res.status(200).send(project.comments);
+      })
+      .catch((err) => {
+        res.status(500).send(err);
+      });
+  }
+});
+
+router.delete("/:id/comment", authenticateToken, function (req, res) {
+  if (req.params.id) {
+    // Project.findOneAndDelete({ _id: req.params.id })
+    //     .then((project) => {
+    //         res.status(200).send("project deleted successfully")
+    //     }).catch((err) => {
+    //         res.status(500).send("error deleting project")
+    //     })
+  }
 });
 
 module.exports = router;
