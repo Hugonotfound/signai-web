@@ -43,24 +43,21 @@ router.get("/list", authenticateToken, function (req, res) {
 
 router.post("", authenticateToken, function (req, res) {
   let newContraints = [];
-  req.body.contraints.forEach(({ contraint, positionLong, positionLat }) => {
-    newContraint = {
-      contraint,
-      position: {
-        positionLong: positionLong,
-        positionLat: positionLat,
-      },
-    };
-    newContraints.appendChild(newContraint);
-  });
+  if (req.body.contraints != undefined)
+    req.body.contraints.forEach((res) => {
+      newContraint = {
+        type: res.type,
+        longitude: res.longitude,
+        latitude: res.latitude,
+      };
+      newContraints.push(newContraint);
+    });
 
   const newProject = new Project({
     name: req.body.name,
     description: req.body.description,
-    departPositionLong: {
-      long: req.body.departPositionLong,
-      lat: req.body.departPositionLat,
-    },
+    longitude: req.body.departPositionLong,
+    latitude: req.body.departPositionLat,
     departAddress: req.body.departAddress,
     radius: req.body.radius,
     contraints: newContraints,
@@ -87,12 +84,12 @@ router.post("", authenticateToken, function (req, res) {
 // });
 
 router.delete("", authenticateToken, function (req, res) {
-    Project.findOneAndDelete({ _id: req.query.id })
-        .then((project) => {
-            res.status(200).send("project deleted successfully")
-        }).catch((err) => {
-            res.status(500).send("error deleting project")
-        })
+  Project.findOneAndDelete({ _id: req.query.id })
+    .then((project) => {
+      res.status(200).send("project deleted successfully")
+    }).catch((err) => {
+      res.status(500).send("error deleting project")
+    })
 })
 
 router.post("/:id/comment", authenticateToken, function (req, res) {

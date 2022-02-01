@@ -4,6 +4,10 @@ const UserModel = require('../Models/user.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+router.post('/test', function (req, res) {
+    res.status(500).send("TipTop");
+})
+
 router.post('/register', function (req, res) {
     const {
         email,
@@ -14,7 +18,9 @@ router.post('/register', function (req, res) {
         phone,
         company,
     } = req.body;
-    if (type === 'manager' || type === 'observator' || phone.contain) {
+    console.log(email)
+    console.log(type)
+    if (type == 'manager' || type == 'observator') {
         UserModel.findOne({ email: email}).then( user => {
             if (user) {
                 res.status(409).send('User already registered.');
@@ -42,7 +48,7 @@ router.post('/register', function (req, res) {
             }
         })
     } else {
-        res.status(400).send('Type of user not supported.');
+        res.status(400).send('Type of user not supported. = ' + type);
     }
 
 })

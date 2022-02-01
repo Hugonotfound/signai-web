@@ -7,18 +7,19 @@ const positionSchema = mongoose.Schema({
 })
 
 const contraintSchema = mongoose.Schema({
-    contraint: {type: String, required: true},
-    position: positionSchema,
-
+    type: {type: String, required: true},
+    latitude: {type: Number, required: true},
+    longitude: {type: Number, required: true},
 })
 const projectSchema = mongoose.Schema({
     id: mongoose.ObjectId,
     name: {type: String, required: true},
     description: {type: String},
-    departCoordinates: positionSchema,
+    longitude: {type: Number, required: true},
+    latitude: {type: Number, required: true},
     departAddress: {type: String, required: true},
     radius: {type: Number, required: true},
-    contraints: [{contraintSchema}],
+    contraints: [contraintSchema],
     company: {type: String, required: true},
     managers: [{type: String}],
     observators: [{type: String}],
@@ -33,7 +34,6 @@ const projectSchema = mongoose.Schema({
         immutable: true,
         default: () => Date.now(),
     },
-    lastEdit: {type: Date, required: true},
     comments: [{comment}],
 })
 
