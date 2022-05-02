@@ -31,6 +31,15 @@ app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use('/project', projectRouter);
 
+app.get('/up', function (req, res, next) {
+    if (req.accepts('html')) {
+      res.status(200).send('Signai backend server is UP :D');
+      return;
+    }
+    res.type('txt').send('Server is Up =D');
+  });
+
+
 app.get('*', function (req, res, next) {
     res.status(404);
     if (req.accepts('html')) {
