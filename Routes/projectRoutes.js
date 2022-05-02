@@ -64,7 +64,7 @@ router.post("", authenticateToken, function (req, res) {
     company: req.body.company,
     managers: req.body.managers,
     observators: req.body.observators,
-    status: "En cours",
+    status: "created",
   });
   newProject
     .save()
