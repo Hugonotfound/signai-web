@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
   "author": "Hugo Poisot: hugo.poisot@epitech.eu; Sitpi Rajendrain: sitpi-kevin.rajendran@epitech.eu",
   "license": "ISC",
