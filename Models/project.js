@@ -13,7 +13,7 @@ const contraintSchema = mongoose.Schema({
 })
 
 const resultSchema = mongoose.Schema({
-    id: {type: Number, required: true},
+    id: {type: String, required: true},
     type: {type: String, required: true},
     value: {type: String, required: true},
     coordonateX: {type: Number, required: true},
