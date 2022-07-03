@@ -11,6 +11,15 @@ const contraintSchema = mongoose.Schema({
     latitude: {type: Number, required: true},
     longitude: {type: Number, required: true},
 })
+
+const resultSchema = mongoose.Schema({
+    id: {type: Number, required: true},
+    type: {type: String, required: true},
+    value: {type: String, required: true},
+    coordonateX: {type: Number, required: true},
+    coordonateY: {type: Number, required: true},
+})
+
 const projectSchema = mongoose.Schema({
     id: mongoose.ObjectId,
     name: {type: String, required: true},
@@ -35,7 +44,9 @@ const projectSchema = mongoose.Schema({
         default: () => Date.now(),
     },
     comments: [{comment}],
+    results: [resultSchema],
 })
+
 
 module.exports = mongoose.model('project', projectSchema)
 

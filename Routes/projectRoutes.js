@@ -137,4 +137,17 @@ router.delete("/:id/comment", authenticateToken, function (req, res) {
   }
 });
 
+router.post("/:id/result", authenticateToken, function (req, res) {
+  if (req.params.id) {
+    const filter =  { _id: req.params.id };
+    const update = { results: req.body.results };
+    console.log('res: ' + JSON.stringify(update))
+    Project.findOneAndUpdate(filter, update).then((res) => {
+      res.status(200).send(res);
+    }).catch((err) => {
+      res.status(500).send(err);
+    });
+  }
+})
+
 module.exports = router;
