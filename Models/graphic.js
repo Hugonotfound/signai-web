@@ -10,7 +10,7 @@ const graphicTrip = mongoose.model("graphicTrip", graphicTripSchema);
 
 const graphicRoadSchema = mongoose.Schema({
     id: mongoose.ObjectId,
-    data: {type: Buffer, required: false},
+    data: {type: String, required: false},
     project_id: {type: String, required: true},
 })
 
