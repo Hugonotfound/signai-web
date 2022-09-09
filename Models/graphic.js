@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const graphicTripSchema = mongoose.Schema({
     id: mongoose.ObjectId,
-    data: {type: Buffer, required: false},
+    data: {type: String, required: false},
     project_id: {type: String, required: true},
 })
 
