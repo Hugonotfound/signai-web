@@ -55,10 +55,10 @@ app.get('/documentation', swaggerUi.serve, swaggerUi.setup(swaggerDocs)); */
 
 app.get('/up', function (req, res, next) {
     if (req.accepts('html')) {
-      res.status(200).send('Signai backend server is UP :D');
+      res.status(200).send('Signai backend server is UP');
       return;
     }
-    res.type('txt').send('Server is Up =D');
+    res.type('txt').send('Server is Up');
   });
 
 
