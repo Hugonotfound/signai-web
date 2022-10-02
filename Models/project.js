@@ -16,6 +16,7 @@ const resultSchema = mongoose.Schema({
     id: {type: String, required: true},
     type: {type: String, required: true},
     value: {type: String, required: true},
+    oldValue: {type: String, required: true},
     coordonateX: {type: Number, required: true},
     coordonateY: {type: Number, required: true},
 })
