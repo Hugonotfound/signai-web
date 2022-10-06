@@ -29,7 +29,7 @@ router.get("/pdf", function (req, res) {
     Project.findById(req.query.id)
       .then((projects) => {
         var htmlcontent = '<html><body><h2>' + projects.name + '</h2><p>Description : ' + projects.description + '</p><p>Entreprise :' + projects.company + '</p><p>' + projects.contraints + '</p><p>' + projects.results + '</p></body></html>';
-        var options = { format: 'Letter' };
+        var options = { format: 'A4' };
 
         pdf.create(htmlcontent, options).toBuffer(function (err, buffer) {
           res.status(200).send(buffer);
