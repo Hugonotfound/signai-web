@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const Project = require("../Models/project");
 const Comment = require("../Models/comments");
+var pdf = require('html-pdf');
+
 const {
   authenticateToken,
   authenticateManager,
@@ -12,6 +14,26 @@ router.get("", authenticateToken, function (req, res) {
     Project.findById(req.query.id)
       .then((projects) => {
         res.status(200).send(projects);
+      })
+      .catch((err) => {
+        res.status(500).send(err);
+      });
+  } else {
+    res.status(500).send("Id missing");
+  }
+});
+
+router.get("/pdf", function (req, res) {
+
+  if (req.query.id) {
+    Project.findById(req.query.id)
+      .then((projects) => {
+        var htmlcontent = '<html><body><h2>' + projects.name + '</h2><p>Description : ' + projects.description + '</p><p>Entreprise :' + projects.company + '</p><p>' + projects.contraints + '</p><p>' + projects.results + '</p></body></html>';
+        var options = { format: 'Letter' };
+
+        pdf.create(htmlcontent, options).toBuffer(function (err, buffer) {
+          res.status(200).send(buffer);
+        });
       })
       .catch((err) => {
         res.status(500).send(err);
