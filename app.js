@@ -54,13 +54,28 @@ const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.get('/documentation', swaggerUi.serve, swaggerUi.setup(swaggerDocs)); */
 
 app.get('/up', function (req, res, next) {
-    if (req.accepts('html')) {
-      res.status(200).send('Signai backend server is UP');
-      return;
-    }
-    res.type('txt').send('Server is Up');
-  });
+  if (req.accepts('html')) {
+    res.status(200).send('Signai backend server is UP');
+    return;
+  }
+  res.type('txt').send('Server is Up');
+});
 
+app.get('/.well-known/acme-challenge/n0h5mrqM1sdo3OiQNUOHlA5OrLev7iYw_ly6dFbeXRo', function (req, res, next) {
+  if (req.accepts('html')) {
+    res.status(200).send('n0h5mrqM1sdo3OiQNUOHlA5OrLev7iYw_ly6dFbeXRo.ymHyYriGWiOLg7uU1TMIOmjA5XyvjR68FV2K-AlSkhg');
+    return;
+  }
+  res.type('txt').send('n0h5mrqM1sdo3OiQNUOHlA5OrLev7iYw_ly6dFbeXRo.ymHyYriGWiOLg7uU1TMIOmjA5XyvjR68FV2K-AlSkhg');
+});
+
+app.get('/.well-known/acme-challenge/7T4eyn3Cxh6ETDrfyXcQ0jm1WCkh13Oz49TVSUowIb0', function (req, res, next) {
+  if (req.accepts('html')) {
+    res.status(200).send('7T4eyn3Cxh6ETDrfyXcQ0jm1WCkh13Oz49TVSUowIb0.ymHyYriGWiOLg7uU1TMIOmjA5XyvjR68FV2K-AlSkhg');
+    return;
+  }
+  res.type('txt').send('7T4eyn3Cxh6ETDrfyXcQ0jm1WCkh13Oz49TVSUowIb0.ymHyYriGWiOLg7uU1TMIOmjA5XyvjR68FV2K-AlSkhg');
+});
 
 app.get('*', function (req, res, next) {
     res.status(404);
