@@ -61,20 +61,12 @@ app.get('/up', function (req, res, next) {
   res.type('txt').send('Server is Up');
 });
 
-app.get('/.well-known/acme-challenge/n0h5mrqM1sdo3OiQNUOHlA5OrLev7iYw_ly6dFbeXRo', function (req, res, next) {
-  if (req.accepts('html')) {
-    res.status(200).send('n0h5mrqM1sdo3OiQNUOHlA5OrLev7iYw_ly6dFbeXRo.ymHyYriGWiOLg7uU1TMIOmjA5XyvjR68FV2K-AlSkhg');
-    return;
-  }
-  res.type('txt').send('n0h5mrqM1sdo3OiQNUOHlA5OrLev7iYw_ly6dFbeXRo.ymHyYriGWiOLg7uU1TMIOmjA5XyvjR68FV2K-AlSkhg');
+app.get('/.well-known/acme-challenge/cGd9VXi3TNq6qjpGABCJwayIoElX3U51FOedHK4xHgg', function (req, res, next) {
+  res.type('txt').send('cGd9VXi3TNq6qjpGABCJwayIoElX3U51FOedHK4xHgg.ymHyYriGWiOLg7uU1TMIOmjA5XyvjR68FV2K-AlSkhg');
 });
 
-app.get('/.well-known/acme-challenge/7T4eyn3Cxh6ETDrfyXcQ0jm1WCkh13Oz49TVSUowIb0', function (req, res, next) {
-  if (req.accepts('html')) {
-    res.status(200).send('7T4eyn3Cxh6ETDrfyXcQ0jm1WCkh13Oz49TVSUowIb0.ymHyYriGWiOLg7uU1TMIOmjA5XyvjR68FV2K-AlSkhg');
-    return;
-  }
-  res.type('txt').send('7T4eyn3Cxh6ETDrfyXcQ0jm1WCkh13Oz49TVSUowIb0.ymHyYriGWiOLg7uU1TMIOmjA5XyvjR68FV2K-AlSkhg');
+app.get('/.well-known/acme-challenge/NMByVpQS5YfzFQRWOSnnDHv0N5ms42m2qXAQ_4UegIA', function (req, res, next) {
+  res.type('txt').send('NMByVpQS5YfzFQRWOSnnDHv0N5ms42m2qXAQ_4UegIA.ymHyYriGWiOLg7uU1TMIOmjA5XyvjR68FV2K-AlSkhg');
 });
 
 app.get('*', function (req, res, next) {
