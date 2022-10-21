@@ -54,13 +54,20 @@ const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.get('/documentation', swaggerUi.serve, swaggerUi.setup(swaggerDocs)); */
 
 app.get('/up', function (req, res, next) {
-    if (req.accepts('html')) {
-      res.status(200).send('Signai backend server is UP');
-      return;
-    }
-    res.type('txt').send('Server is Up');
-  });
+  if (req.accepts('html')) {
+    res.status(200).send('Signai backend server is UP');
+    return;
+  }
+  res.type('txt').send('Server is Up');
+});
 
+app.get('/.well-known/acme-challenge/cGd9VXi3TNq6qjpGABCJwayIoElX3U51FOedHK4xHgg', function (req, res, next) {
+  res.type('txt').send('cGd9VXi3TNq6qjpGABCJwayIoElX3U51FOedHK4xHgg.ymHyYriGWiOLg7uU1TMIOmjA5XyvjR68FV2K-AlSkhg');
+});
+
+app.get('/.well-known/acme-challenge/NMByVpQS5YfzFQRWOSnnDHv0N5ms42m2qXAQ_4UegIA', function (req, res, next) {
+  res.type('txt').send('NMByVpQS5YfzFQRWOSnnDHv0N5ms42m2qXAQ_4UegIA.ymHyYriGWiOLg7uU1TMIOmjA5XyvjR68FV2K-AlSkhg');
+});
 
 app.get('*', function (req, res, next) {
     res.status(404);
