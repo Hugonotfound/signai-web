@@ -10,6 +10,7 @@ const contraintSchema = mongoose.Schema({
     type: {type: String, required: true},
     latitude: {type: Number, required: true},
     longitude: {type: Number, required: true},
+    streetName: {type: String, required: true},
 })
 
 const resultSchema = mongoose.Schema({
@@ -19,6 +20,7 @@ const resultSchema = mongoose.Schema({
     oldValue: {type: String, required: true},
     coordonateX: {type: Number, required: true},
     coordonateY: {type: Number, required: true},
+    streetName: {type: String, required: true},
 })
 
 const projectSchema = mongoose.Schema({
