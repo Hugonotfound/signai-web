@@ -88,12 +88,12 @@ router.get("/list", authenticateToken, function (req, res) {
 router.post("", authenticateToken, function (req, res) {
   let newContraints = [];
   if (req.body.contraints != undefined)
-    req.body.contraints.forEach((res) => {
-      getStreetName(res.latitude, res.longitude).then((streetNameRes) => {
+    req.body.contraints.forEach((elem) => {
+      getStreetName(elem.latitude, elem.longitude).then((streetNameRes) => {
         newContraint = {
-          type: res.type,
-          longitude: res.longitude,
-          latitude: res.latitude,
+          type: elem.type,
+          longitude: elem.longitude,
+          latitude: elem.latitude,
           streetName: streetNameRes
         };
         newContraints.push(newContraint);
