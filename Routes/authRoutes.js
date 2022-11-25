@@ -4,10 +4,6 @@ const UserModel = require('../Models/user.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-router.post('/test', function (req, res) {
-    res.status(500).send("TipTop");
-})
-
 router.post('/register', function (req, res) {
     const {
         email,

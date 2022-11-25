@@ -10,10 +10,27 @@ const authRouter = require('./Routes/authRoutes.js');
 const userRouter = require('./Routes/userRoutes.js');
 const projectRouter = require('./Routes/projectRoutes.js');
 const graphicRouter = require('./Routes/graphicRoutes.js');
-/* const swaggerUi = require('swagger-ui-express');
+const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerDocument = require('./swagger.json')
+const {sendMail} = require("./Configs/mailer.js")
 
-const swaggerDocument = require('./swagger.json') */
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      title: "SignAI Backend",
+      description: "yes.",
+      contact: {
+        name: "Hugo Poisot"
+      },
+      servers: ["http://localhost:3001"]
+    },
+  },
+  apis: ["app.js"]
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.get('/documentation', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 //MONGOOSE
 mongoose.connect("mongodb+srv://sitpi:" + process.env.DB_PASS + "@cluster.hxvcw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
   {
@@ -36,29 +53,17 @@ app.use('/user', userRouter);
 app.use('/project', projectRouter);
 app.use('/graphic', graphicRouter);
 
-/* const swaggerOptions = {
-  swaggerDefinition: {
-    info: {
-      title: "SignAI Backend",
-      description: "yes.",
-      contact: {
-        name: "Hugo Poisot"
-      },
-      servers: ["http://localhost:3001"]
-    },
-  },
-  apis: ["app.js"]
-};
-
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.get('/documentation', swaggerUi.serve, swaggerUi.setup(swaggerDocs)); */
-
 app.get('/up', function (req, res, next) {
     if (req.accepts('html')) {
       res.status(200).send('Signai backend server is UP');
       return;
     }
     res.type('txt').send('Server is Up');
+  });
+
+  app.post('/email', function (req, res, next) {
+    sendMail();
+    res.status(500).send('email sent');
   });
 
 

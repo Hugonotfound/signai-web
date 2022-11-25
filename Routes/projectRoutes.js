@@ -72,16 +72,9 @@ router.post("", authenticateToken, function (req, res) {
       res.status(201).send(project);
     })
     .catch((error) => {
-      res.status(500).send(error);
+      res.status(500).send('Intern error during uploading project: ' + error);
     });
 });
-
-// router.put("", authenticateToken, function (req, res) {
-//   if (req.query.id) {
-//   } else {
-//     res.status(500).send("Id misisng");
-//   }
-// });
 
 router.delete("", authenticateToken, function (req, res) {
   Project.findOneAndDelete({ _id: req.query.id })
@@ -109,8 +102,10 @@ router.post("/:id/comment", authenticateToken, function (req, res) {
         res.status(201).send(project.comments);
       })
       .catch((err) => {
-        res.status(500).send(err);
+        res.status(500).send('Intern error during push message');
       });
+  } else {
+    res.status(500).send('Missing id to post comment on project')
   }
 });
 
@@ -121,19 +116,24 @@ router.get("/:id/comments", authenticateToken, function (req, res) {
         res.status(200).send(project.comments);
       })
       .catch((err) => {
-        res.status(500).send(err);
+        res.status(500).send('Intern error during getting comments of this project');
       });
+  } else {
+    res.status(500).send('Missing id to get comments of project')
   }
 });
 
 router.delete("/:id/comment", authenticateToken, function (req, res) {
   if (req.params.id) {
-    // Project.findOneAndDelete({ _id: req.params.id })
-    //     .then((project) => {
-    //         res.status(200).send("project deleted successfully")
-    //     }).catch((err) => {
-    //         res.status(500).send("error deleting project")
-    //     })
+    Project.findOneAndDelete({ _id: req.params.id })
+        .then((project) => {
+            res.status(200).send("project deleted successfully")
+        }).catch((err) => {
+            res.status(500).send("error deleting project")
+        })
+  } else {
+    res.status(500).send('Missing id to delete result')
+
   }
 });
 
@@ -145,9 +145,10 @@ router.post("/:id/result", authenticateToken, function (req, res) {
     Project.findOneAndUpdate(filter, update).then((res) => {
       res.status(200).send(res);
     }).catch((err) => {
-      res.status(500).send(err);
-      console.log('err: ' + err)
+      res.status(500).send('intern error during uploading result: ' + err);
     });
+  } else {
+    res.status(500).send('Missing id to upload result')
   }
 })
 
@@ -155,11 +156,12 @@ router.get("/:id/result", authenticateToken, function (req, res) {
   if (req.params.id) {
     const filter =  { _id: req.params.id };
     Project.findOne(filter).then((res) => {
-      res.status(200).send(res);
+      res.status(200).send(res.results);
     }).catch((err) => {
-      res.status(500).send(err);
-      console.log('err: ' + err)
+      res.status(500).send('intern error during getting result');
     });
+  } else {
+    res.status(500).send('Missing id to get result');
   }
 })
 

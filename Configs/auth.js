@@ -6,15 +6,15 @@ const authenticateToken = function(req, res, next) {
     const token = authHeader && authHeader.split(' ')[1];
     if (token == null) return res.sendStatus(401);
     else if (token == process.env.API_TOKEN) {
-        req.email = email;
+        req.email = "hugo.poisot@epitech.eu";
         next();
-    };
-
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, email) => {
-        if (err) return res.sendStatus(403);
-        req.email = email;
-        next();
-    });
+    } else {
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, email) => {
+            if (err) return res.sendStatus(403);
+            req.email = email;
+            next();
+        });
+    }  
 };
 
 function authenticateAdmin(req, res, next) {
