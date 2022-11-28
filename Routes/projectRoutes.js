@@ -43,36 +43,42 @@ router.get("/list", authenticateToken, function (req, res) {
 
 router.post("", authenticateToken, function (req, res) {
   let newContraints = [];
+  console.log(req.email.email)
   if (req.body.contraints != undefined)
-    req.body.contraints.forEach((res) => {
-      newContraint = {
-        type: res.type,
-        longitude: res.longitude,
-        latitude: res.latitude,
-      };
-      newContraints.push(newContraint);
-    });
-
-  const newProject = new Project({
-    name: req.body.name,
-    description: req.body.description,
-    longitude: req.body.departPositionLong,
-    latitude: req.body.departPositionLat,
-    departAddress: req.body.departAddress,
-    radius: req.body.radius,
-    contraints: newContraints,
-    company: req.body.company,
-    managers: req.body.managers,
-    observators: req.body.observators,
-    status: "created",
-  });
-  newProject
-    .save()
-    .then((project) => {
-      res.status(201).send(project);
-    })
-    .catch((error) => {
-      res.status(500).send('Intern error during uploading project: ' + error);
+    req.body.contraints.forEach((elem) => {
+      getStreetName(elem.latitude, elem.longitude).then((streetNameRes) => {
+        newContraint = {
+          type: elem.type,
+          longitude: elem.longitude,
+          latitude: elem.latitude,
+          streetName: streetNameRes
+        };
+        newContraints.push(newContraint);
+        return newContraints;
+      }).then((constraints) => {
+        const newProject = new Project({
+          name: req.body.name,
+          description: req.body.description,
+          longitude: req.body.departPositionLong,
+          latitude: req.body.departPositionLat,
+          departAddress: req.body.departAddress,
+          radius: req.body.radius,
+          contraints: constraints,
+          company: req.body.company,
+          managers: req.body.managers,
+          observators: req.body.observators,
+          status: "created",
+        })
+        // newProject
+        //   .save()
+        //   .then((project) => {
+        //     res.status(201).send(project);
+        //   })
+        //   .catch((error) => {
+        //     res.status(500).send(error);
+        //   });
+        res.status(201).send('test');
+      });
     });
 });
 

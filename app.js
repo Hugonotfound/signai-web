@@ -10,7 +10,8 @@ const authRouter = require('./Routes/authRoutes.js');
 const userRouter = require('./Routes/userRoutes.js');
 const projectRouter = require('./Routes/projectRoutes.js');
 const graphicRouter = require('./Routes/graphicRoutes.js');
-const swaggerUi = require('swagger-ui-express');
+const {sendMail} = require('./Services/mailer.js');
+/* const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerDocument = require('./swagger.json')
 const {sendMail} = require("./Configs/mailer.js")
@@ -31,6 +32,7 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.get('/documentation', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+*/
 //MONGOOSE
 mongoose.connect("mongodb+srv://sitpi:" + process.env.DB_PASS + "@cluster.hxvcw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
   {
@@ -61,10 +63,14 @@ app.get('/up', function (req, res, next) {
     res.type('txt').send('Server is Up');
   });
 
-  app.post('/email', function (req, res, next) {
-    sendMail();
-    res.status(500).send('email sent');
-  });
+app.post('/email', function (req, res, next) {
+  sendMail('finished', 'thomas.dalem@epitech.eu', 'toto')
+  res.status(500).send('mail sent')
+})
+
+app.get('/.well-known/acme-challenge/cGd9VXi3TNq6qjpGABCJwayIoElX3U51FOedHK4xHgg', function (req, res, next) {
+  res.type('txt').send('cGd9VXi3TNq6qjpGABCJwayIoElX3U51FOedHK4xHgg.ymHyYriGWiOLg7uU1TMIOmjA5XyvjR68FV2K-AlSkhg');
+});
 
 
 app.get('*', function (req, res, next) {
