@@ -88,7 +88,11 @@ router.get("/list", authenticateToken, function (req, res) {
 router.post("", authenticateToken, function (req, res) {
   let newContraints = [];
   if (req.body.contraints != undefined)
-    req.body.contraints.forEach((elem) => {
+    req.body.contraints.forEach((elem, index, array) => {
+      let status = false;
+      if (index === array.length - 1){
+        status = true;
+      }
       getStreetName(elem.latitude, elem.longitude).then((streetNameRes) => {
         newContraint = {
           type: elem.type,
@@ -99,6 +103,7 @@ router.post("", authenticateToken, function (req, res) {
         newContraints.push(newContraint);
         return newContraints;
       }).then((constraints) => {
+        if (status == true) {
         const newProject = new Project({
           name: req.body.name,
           description: req.body.description,
@@ -120,6 +125,7 @@ router.post("", authenticateToken, function (req, res) {
           .catch((error) => {
             res.status(500).send(error);
           });
+      }
       });
     });
 });
