@@ -9,12 +9,12 @@ const authenticateToken = function(req, res, next) {
         req.email = "hugo.poisot@epitech.eu";
         next();
     } else {
-        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, email) => {
-            if (err) return res.sendStatus(403);
-            req.email = email;
-            next();
-        });
-    }  
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, email) => {
+        if (err) return res.sendStatus(403);
+        req.email = email;
+        next();
+    });
+    }
 };
 
 function authenticateAdmin(req, res, next) {

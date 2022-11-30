@@ -10,14 +10,17 @@ const contraintSchema = mongoose.Schema({
     type: {type: String, required: true},
     latitude: {type: Number, required: true},
     longitude: {type: Number, required: true},
+    streetName: {type: String, required: true},
 })
 
 const resultSchema = mongoose.Schema({
     id: {type: String, required: true},
     type: {type: String, required: true},
     value: {type: String, required: true},
+    oldValue: {type: String, required: true},
     coordonateX: {type: Number, required: true},
     coordonateY: {type: Number, required: true},
+    streetName: {type: String, required: true},
 })
 
 const projectSchema = mongoose.Schema({
@@ -33,6 +36,8 @@ const projectSchema = mongoose.Schema({
     managers: [{type: String}],
     observators: [{type: String}],
     status: {type: String, required: true},
+    createdEmailSent: {type: Boolean, default: false},
+    finishedEmailSent: {type: Boolean, default: false},
     createdAt: {
         type: Date,
         immutable: true,
