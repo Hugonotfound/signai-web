@@ -10,6 +10,8 @@ const authRouter = require('./Routes/authRoutes.js');
 const userRouter = require('./Routes/userRoutes.js');
 const projectRouter = require('./Routes/projectRoutes.js');
 const graphicRouter = require('./Routes/graphicRoutes.js');
+const cron = require('node-cron');
+const Project = require('./Models/project');
 /* const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
 
@@ -35,6 +37,39 @@ app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use('/project', projectRouter);
 app.use('/graphic', graphicRouter);
+
+function handleChangedProjects()
+{
+  Project.find().then(async function (res) {
+    if (res) {
+      for (const project of res) {
+        if (project.status === "downloaded" && project.createdEmailSent == false) {
+          console.log("Envoi email projet en cours");
+          // TODO: envoyer email
+          project.createdEmailSent = true;
+          try {
+            await project.save();
+          } catch (error) {
+            console.log('Skipped');
+          }
+        } else if (project.status === "finished" && project.finishedEmailSent == false) {
+          console.log("Envoi email projet fini");
+          // TODO: envoyer email
+          project.finishedEmailSent = true;
+          try {
+            await project.save();
+          } catch (error) {
+            console.log('Skipped');
+          }
+        }
+      }
+    } else {
+      console.error("Could not get project");
+    }
+  });
+}
+
+//cron.schedule('*/3 * * * * *', handleChangedProjects);
 
 /* const swaggerOptions = {
   swaggerDefinition: {
