@@ -36,6 +36,8 @@ const projectSchema = mongoose.Schema({
     managers: [{type: String}],
     observators: [{type: String}],
     status: {type: String, required: true},
+    createdEmailSent: {type: Boolean, default: false},
+    finishedEmailSent: {type: Boolean, default: false},
     createdAt: {
         type: Date,
         immutable: true,
