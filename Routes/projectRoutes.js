@@ -13,21 +13,23 @@ const {
 
 async function getStreetName(lat, lon) {
   var streetName = await fetch('https://nominatim.openstreetmap.org/reverse?lat=' + lat + '&lon=' + lon + '&zoom=16', {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      }
-    }).then(async (response) => {
-      var res = await response.text()
-      if (response.ok) {
-        if (res.indexOf('<road>') != -1)
-          return res.slice(res.indexOf('<road>') + 6, res.indexOf('</road>'))
-        else
-          return (lat + ", " + lon)
-    }})
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    }
+  }).then(async (response) => {
+    var res = await response.text()
+    if (response.ok) {
+      if (res.indexOf('<road>') != -1)
+        return res.slice(res.indexOf('<road>') + 6, res.indexOf('</road>'))
+      else
+        return (lat.slice(0,5) + ", " + lon.slice(0,5))
+    } else
+      return (lat.slice(0,5) + ", " + lon.slice(0,5))
+  })
   return streetName
 }
 
@@ -71,7 +73,7 @@ router.post("", authenticateToken, function (req, res) {
   if (req.body.contraints != undefined) {
     req.body.contraints.forEach((elem, index, array) => {
       let status = false;
-      if (index === array.length - 1){
+      if (index === array.length - 1) {
         status = true;
       }
       getStreetName(elem.latitude, elem.longitude).then((streetNameRes) => {
@@ -199,7 +201,7 @@ router.delete("/:id/comment", authenticateToken, function (req, res) {
 async function putStreetNameIntoResult(data) {
   data = data.results;
   var new_data = await Promise.all(data.map(async (elem) => {
-    return {...elem, streetName: await getStreetName(elem.coordonateX, elem.coordonateY)}
+    return { ...elem, streetName: await getStreetName(elem.coordonateX, elem.coordonateY) }
   }));
   return new_data
 
@@ -207,10 +209,10 @@ async function putStreetNameIntoResult(data) {
 
 router.post("/:id/result", authenticateToken, function (req, res) {
   if (req.params.id) {
-    const filter =  { _id: req.params.id };
+    const filter = { _id: req.params.id };
     var update = { results: req.body.results };
     putStreetNameIntoResult(update).then((data) => {
-      data = {"results": data};
+      data = { "results": data };
       Project.findOneAndUpdate(filter, data).then((results) => {
         res.status(200).send(results);
       }).catch((err) => {
@@ -240,7 +242,7 @@ router.get("/pdf", function (req, res) {
       .then((project) => {
         const stream = res.writeHead(200, {
           'Content-Type': 'application/pdf',
-//          'Content-Disposition': `attachment;filename=invoice.pdf`,
+          //          'Content-Disposition': `attachment;filename=invoice.pdf`,
         });
         pdfService.buildPDF(
           (chunk) => stream.write(chunk),
