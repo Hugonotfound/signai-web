@@ -8,8 +8,7 @@ const authenticateToken = function(req, res, next) {
     else if (token == process.env.API_TOKEN) {
         req.email = "hugo.poisot@epitech.eu";
         next();
-    };
-    else {
+    } else {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, email) => {
         if (err) return res.sendStatus(403);
         req.email = email;
