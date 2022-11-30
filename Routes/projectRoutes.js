@@ -25,7 +25,7 @@ async function getStreetName(lat, lon) {
         if (res.indexOf('<road>') != -1)
           return res.slice(res.indexOf('<road>') + 6, res.indexOf('</road>'))
         else
-          return ("dans cette rue")
+          return (lat + ", " + lon)
     }})
   return streetName
 }
@@ -87,7 +87,7 @@ router.get("/list", authenticateToken, function (req, res) {
 
 router.post("", authenticateToken, function (req, res) {
   let newContraints = [];
-  if (req.body.contraints != undefined)
+  if (req.body.contraints != undefined) {
     req.body.contraints.forEach((elem, index, array) => {
       let status = false;
       if (index === array.length - 1){
@@ -104,30 +104,53 @@ router.post("", authenticateToken, function (req, res) {
         return newContraints;
       }).then((constraints) => {
         if (status == true) {
-        const newProject = new Project({
-          name: req.body.name,
-          description: req.body.description,
-          longitude: req.body.departPositionLong,
-          latitude: req.body.departPositionLat,
-          departAddress: req.body.departAddress,
-          radius: req.body.radius,
-          contraints: constraints,
-          company: req.body.company,
-          managers: req.body.managers,
-          observators: req.body.observators,
-          status: "created",
-        })
-        newProject
-          .save()
-          .then((project) => {
-            res.status(201).send(project);
+          const newProject = new Project({
+            name: req.body.name,
+            description: req.body.description,
+            longitude: req.body.departPositionLong,
+            latitude: req.body.departPositionLat,
+            departAddress: req.body.departAddress,
+            radius: req.body.radius,
+            contraints: constraints,
+            company: req.body.company,
+            managers: req.body.managers,
+            observators: req.body.observators,
+            status: "created",
           })
-          .catch((error) => {
-            res.status(500).send(error);
-          });
-      }
+          newProject
+            .save()
+            .then((project) => {
+              res.status(201).send(project);
+            })
+            .catch((error) => {
+              res.status(500).send(error);
+            });
+        }
       });
     });
+  } else {
+    const newProject = new Project({
+      name: req.body.name,
+      description: req.body.description,
+      longitude: req.body.departPositionLong,
+      latitude: req.body.departPositionLat,
+      departAddress: req.body.departAddress,
+      radius: req.body.radius,
+      contraints: [],
+      company: req.body.company,
+      managers: req.body.managers,
+      observators: req.body.observators,
+      status: "created",
+    })
+    newProject
+      .save()
+      .then((project) => {
+        res.status(201).send(project);
+      })
+      .catch((error) => {
+        res.status(500).send(error);
+      });
+  }
 });
 
 // router.put("", authenticateToken, function (req, res) {
