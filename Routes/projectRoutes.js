@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Project = require("../Models/project");
 const Comment = require("../Models/comments");
-var pdf = require('html-pdf');
+const pdfService = require('../Configs/pdfBuilder');
 
 const {
   authenticateToken,
@@ -14,26 +14,6 @@ router.get("", authenticateToken, function (req, res) {
     Project.findById(req.query.id)
       .then((projects) => {
         res.status(200).send(projects);
-      })
-      .catch((err) => {
-        res.status(500).send(err);
-      });
-  } else {
-    res.status(500).send("Id missing");
-  }
-});
-
-router.get("/pdf", function (req, res) {
-
-  if (req.query.id) {
-    Project.findById(req.query.id)
-      .then((projects) => {
-        var htmlcontent = '<html><body><h2>' + projects.name + '</h2><p>Description : ' + projects.description + '</p><p>Entreprise :' + projects.company + '</p><p>' + projects.contraints + '</p><p>' + projects.results + '</p></body></html>';
-        var options = { format: 'A4' };
-
-        pdf.create(htmlcontent, options).toBuffer(function (err, buffer) {
-          res.status(200).send(buffer);
-        });
       })
       .catch((err) => {
         res.status(500).send(err);
@@ -161,7 +141,7 @@ router.delete("/:id/comment", authenticateToken, function (req, res) {
 
 router.post("/:id/result", authenticateToken, function (req, res) {
   if (req.params.id) {
-    const filter =  { _id: req.params.id };
+    const filter = { _id: req.params.id };
     const update = { results: req.body.results };
     console.log('res: ' + JSON.stringify(update))
     Project.findOneAndUpdate(filter, update).then((res) => {
@@ -175,7 +155,7 @@ router.post("/:id/result", authenticateToken, function (req, res) {
 
 router.get("/:id/result", authenticateToken, function (req, res) {
   if (req.params.id) {
-    const filter =  { _id: req.params.id };
+    const filter = { _id: req.params.id };
     Project.findOne(filter).then((res) => {
       res.status(200).send(res);
     }).catch((err) => {
@@ -184,5 +164,29 @@ router.get("/:id/result", authenticateToken, function (req, res) {
     });
   }
 })
+
+
+router.get("/pdf", function (req, res) {
+  if (req.query.id) {
+    Project.findById(req.query.id)
+      .then((project) => {
+        const stream = res.writeHead(200, {
+          'Content-Type': 'application/pdf',
+//          'Content-Disposition': `attachment;filename=invoice.pdf`,
+        });
+        pdfService.buildPDF(
+          (chunk) => stream.write(chunk),
+          () => stream.end(),
+          project
+        );
+      })
+      .catch((err) => {
+        res.status(501).send(err);
+      });
+  } else {
+    res.status(500).send("Id missing");
+  }
+});
+
 
 module.exports = router;
