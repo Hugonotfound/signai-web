@@ -3,7 +3,6 @@ const { google } = require("googleapis");
 const fs = require("fs");
 const handlebars = require("handlebars");
 const path = require("path");
-const { validateHeaderValue } = require("http");
 
 const filePath = path.join(__dirname, "../Templates/password.html");
 const source = fs.readFileSync(filePath, "utf8").toString();

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Project = require("../Models/project");
 const Comment = require("../Models/comments");
+const sendMail = require("../Services/mailer");
 const {
   authenticateToken,
   authenticateManager,
@@ -43,53 +44,57 @@ router.get("/list", authenticateToken, function (req, res) {
 
 router.post("", authenticateToken, function (req, res) {
   let newContraints = [];
-  console.log(req.email.email)
+  console.log(req.email.email);
   if (req.body.contraints != undefined)
     req.body.contraints.forEach((elem) => {
-      getStreetName(elem.latitude, elem.longitude).then((streetNameRes) => {
-        newContraint = {
-          type: elem.type,
-          longitude: elem.longitude,
-          latitude: elem.latitude,
-          streetName: streetNameRes
-        };
-        newContraints.push(newContraint);
-        return newContraints;
-      }).then((constraints) => {
-        const newProject = new Project({
-          name: req.body.name,
-          description: req.body.description,
-          longitude: req.body.departPositionLong,
-          latitude: req.body.departPositionLat,
-          departAddress: req.body.departAddress,
-          radius: req.body.radius,
-          contraints: constraints,
-          company: req.body.company,
-          managers: req.body.managers,
-          observators: req.body.observators,
-          status: "created",
+      getStreetName(elem.latitude, elem.longitude)
+        .then((streetNameRes) => {
+          newContraint = {
+            type: elem.type,
+            longitude: elem.longitude,
+            latitude: elem.latitude,
+            streetName: streetNameRes,
+          };
+          newContraints.push(newContraint);
+          return newContraints;
         })
-        // newProject
-        //   .save()
-        //   .then((project) => {
-        //     res.status(201).send(project);
-        //   })
-        //   .catch((error) => {
-        //     res.status(500).send(error);
-        //   });
-        res.status(201).send('test');
-      });
+        .then((constraints) => {
+          const newProject = new Project({
+            name: req.body.name,
+            description: req.body.description,
+            longitude: req.body.departPositionLong,
+            latitude: req.body.departPositionLat,
+            departAddress: req.body.departAddress,
+            radius: req.body.radius,
+            contraints: constraints,
+            company: req.body.company,
+            managers: req.body.managers,
+            observators: req.body.observators,
+            status: "created",
+          });
+          newProject
+            .save()
+            .then((project) => {
+              res.status(201).send(project);
+              sendMail("created", newProject.observators, newProject.name);
+            })
+            .catch((error) => {
+              res.status(500).send(error);
+            });
+          res.status(201).send("test");
+        });
     });
 });
 
 router.delete("", authenticateToken, function (req, res) {
   Project.findOneAndDelete({ _id: req.query.id })
     .then((project) => {
-      res.status(200).send("project deleted successfully")
-    }).catch((err) => {
-      res.status(500).send("error deleting project")
+      res.status(200).send("project deleted successfully");
     })
-})
+    .catch((err) => {
+      res.status(500).send("error deleting project");
+    });
+});
 
 router.post("/:id/comment", authenticateToken, function (req, res) {
   if (req.params.id) {
@@ -108,10 +113,10 @@ router.post("/:id/comment", authenticateToken, function (req, res) {
         res.status(201).send(project.comments);
       })
       .catch((err) => {
-        res.status(500).send('Intern error during push message');
+        res.status(500).send("Intern error during push message");
       });
   } else {
-    res.status(500).send('Missing id to post comment on project')
+    res.status(500).send("Missing id to post comment on project");
   }
 });
 
@@ -122,53 +127,64 @@ router.get("/:id/comments", authenticateToken, function (req, res) {
         res.status(200).send(project.comments);
       })
       .catch((err) => {
-        res.status(500).send('Intern error during getting comments of this project');
+        res
+          .status(500)
+          .send("Intern error during getting comments of this project");
       });
   } else {
-    res.status(500).send('Missing id to get comments of project')
+    res.status(500).send("Missing id to get comments of project");
   }
 });
 
 router.delete("/:id/comment", authenticateToken, function (req, res) {
   if (req.params.id) {
     Project.findOneAndDelete({ _id: req.params.id })
-        .then((project) => {
-            res.status(200).send("project deleted successfully")
-        }).catch((err) => {
-            res.status(500).send("error deleting project")
-        })
+      .then((project) => {
+        res.status(200).send("project deleted successfully");
+      })
+      .catch((err) => {
+        res.status(500).send("error deleting project");
+      });
   } else {
-    res.status(500).send('Missing id to delete result')
-
+    res.status(500).send("Missing id to delete result");
   }
 });
 
 router.post("/:id/result", authenticateToken, function (req, res) {
   if (req.params.id) {
-    const filter =  { _id: req.params.id };
+    const filter = { _id: req.params.id };
     const update = { results: req.body.results };
-    console.log('res: ' + JSON.stringify(update))
-    Project.findOneAndUpdate(filter, update).then((res) => {
-      res.status(200).send(res);
-    }).catch((err) => {
-      res.status(500).send('intern error during uploading result: ' + err);
-    });
+    console.log("res: " + JSON.stringify(update));
+    Project.findOneAndUpdate(filter, update)
+      .then((res) => {
+        res.status(200).send(res);
+      })
+      .catch((err) => {
+        res.status(500).send("intern error during uploading result: " + err);
+      });
   } else {
-    res.status(500).send('Missing id to upload result')
+    res.status(500).send("Missing id to upload result");
   }
-})
+});
 
 router.get("/:id/result", authenticateToken, function (req, res) {
   if (req.params.id) {
-    const filter =  { _id: req.params.id };
-    Project.findOne(filter).then((res) => {
-      res.status(200).send(res.results);
-    }).catch((err) => {
-      res.status(500).send('intern error during getting result');
-    });
+    const filter = { _id: req.params.id };
+    Project.findOne(filter)
+      .then((res) => {
+        res.status(200).send(res.results);
+      })
+      .catch((err) => {
+        res.status(500).send("intern error during getting result");
+      });
   } else {
-    res.status(500).send('Missing id to get result');
+    res.status(500).send("Missing id to get result");
   }
-})
+});
+
+router.post("/email", authenticateToken, function (req, res, next) {
+  sendMail("finished", "thomas.dalem@epitech.eu", "toto");
+  res.status(500).send("mail sent");
+});
 
 module.exports = router;
