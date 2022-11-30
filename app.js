@@ -69,7 +69,7 @@ function handleChangedProjects()
   });
 }
 
-cron.schedule('*/3 * * * * *', handleChangedProjects);
+//cron.schedule('*/3 * * * * *', handleChangedProjects);
 
 /* const swaggerOptions = {
   swaggerDefinition: {
