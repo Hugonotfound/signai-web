@@ -65,7 +65,7 @@ function handleChangedProjects()
       for (let project of res) {
         if (project.status === "downloaded" && project.createdEmailSent == false) {
           console.log("Envoi email projet en cours");
-          // sendMail('starting', project.observators, project.name, project.id)
+          sendMail('starting', project.observators, project.name, project.id)
           Project.findOneAndUpdate(
             { _id: project.id},
             {
@@ -78,7 +78,7 @@ function handleChangedProjects()
           })
         } else if (project.status === "finished" && project.finishedEmailSent == false) {
           console.log("Envoi email projet fini");
-          // sendMail('finished', project.observators, project.name, project.id)
+          sendMail('finished', project.observators, project.name, project.id)
           Project.findOneAndUpdate(
             { _id: project.id},
             {

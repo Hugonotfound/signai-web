@@ -118,7 +118,7 @@ router.post("", authenticateToken, function (req, res) {
             .save()
             .then((project) => {
               res.status(201).send(project);
-              //              saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran/screen/LPCTNBUQbzFmPOuW/screenshot?url=https://dashboard.signai.fr/map/6387e3b27b99f1838c09e2e8&inline=show&full_page=true&delay=5&viewport=1903x941", project._id.toString() + ".png")
+              saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran2/screen/oqCaczeIIUnAHfcO/screenshot?url=https://dashboard.signai.fr/map/6387e3b27b99f1838c09e2e8&inline=show&full_page=true&delay=30&viewport=1903x941", project._id.toString() + ".png")
               sendMail("created", project.observators, project.name, project.id);
             })
             .catch((error) => {
@@ -235,7 +235,7 @@ router.post("/:id/result", authenticateToken, function (req, res) {
       data = { "results": data };
       Project.findOneAndUpdate(filter, data).then((results) => {
         res.status(200).send(results);
-        //        saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran/screen/LPCTNBUQbzFmPOuW/screenshot?url=https://dashboard.signai.fr/map-results/6387e3b27b99f1838c09e2e8&inline=show&full_page=true&delay=5&viewport=1903x941", req.params.id + "-results.png")
+        saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran2/screen/oqCaczeIIUnAHfcO/screenshot?url=https://dashboard.signai.fr/map-results/" + req.params.id + "&inline=show&full_page=true&delay=15&viewport=1903x941", req.params.id + "-results.png")
       }).catch((err) => {
         res.status(500).send(err);
         console.log('err: ' + err)
