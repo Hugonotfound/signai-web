@@ -18,6 +18,15 @@ describe('CONNECTED USER INFO ROUTE', () => {
         expect(response.statusCode).toBe(200);
     });
 
+    test('user not exist', async () => {
+        const logRes = await request(app).post('/auth/login').send({
+            email: "oui@oui.com",
+            password: "azerty1234",
+        })
+        expect(response.statusCode).toBe(400);
+    });
+       
+
     test('wrong Token', async () => {
         const response = await request(app).get('/user/info/me')
         .set( 'Authorization', 'bearer dfgjhvkjg')
@@ -88,6 +97,21 @@ describe('USER LIST ROUTE', () => {
     });
 
     test('successfuly work', async () => {
+        let logToken;
+
+        const logRes = await request(app).post('/auth/login').send({
+            email: "hugo.poisot@epitech.eu",
+            password: "azerty1234",
+        })
+        logToken = "bearer " + logRes.body.accessToken;
+
+        const response = await request(app).get('/user/list')
+        .set( 'Authorization', logToken)
+        .send()
+        expect(response.statusCode).toBe(200);
+    });
+
+    test('unknown problem', async () => {
         let logToken;
 
         const logRes = await request(app).post('/auth/login').send({

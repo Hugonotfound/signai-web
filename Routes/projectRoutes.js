@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Project = require("../Models/project");
 const Comment = require("../Models/comments");
+const sendMail = require("../Services/mailer");
 const pdfService = require('../Configs/pdfBuilder');
 var pdf = require('html-pdf');
 const fetch = require("node-fetch");
@@ -104,6 +105,7 @@ router.post("", authenticateToken, function (req, res) {
             .save()
             .then((project) => {
               res.status(201).send(project);
+              sendMail("created", project.observators, project.name, project.id);
             })
             .catch((error) => {
               res.status(500).send(error);
@@ -129,6 +131,7 @@ router.post("", authenticateToken, function (req, res) {
       .save()
       .then((project) => {
         res.status(201).send(project);
+        sendMail("created", newProject.observators, newProject.name);
       })
       .catch((error) => {
         res.status(500).send(error);
@@ -136,21 +139,15 @@ router.post("", authenticateToken, function (req, res) {
   }
 });
 
-// router.put("", authenticateToken, function (req, res) {
-//   if (req.query.id) {
-//   } else {
-//     res.status(500).send("Id misisng");
-//   }
-// });
-
 router.delete("", authenticateToken, function (req, res) {
   Project.findOneAndDelete({ _id: req.query.id })
     .then((project) => {
-      res.status(200).send("project deleted successfully")
-    }).catch((err) => {
-      res.status(500).send("error deleting project")
+      res.status(200).send("project deleted successfully");
     })
-})
+    .catch((err) => {
+      res.status(500).send("error deleting project");
+    });
+});
 
 router.post("/:id/comment", authenticateToken, function (req, res) {
   if (req.params.id) {
@@ -169,8 +166,10 @@ router.post("/:id/comment", authenticateToken, function (req, res) {
         res.status(201).send(project.comments);
       })
       .catch((err) => {
-        res.status(500).send(err);
+        res.status(500).send("Intern error during push message");
       });
+  } else {
+    res.status(500).send("Missing id to post comment on project");
   }
 });
 
@@ -181,19 +180,26 @@ router.get("/:id/comments", authenticateToken, function (req, res) {
         res.status(200).send(project.comments);
       })
       .catch((err) => {
-        res.status(500).send(err);
+        res
+          .status(500)
+          .send("Intern error during getting comments of this project");
       });
+  } else {
+    res.status(500).send("Missing id to get comments of project");
   }
 });
 
 router.delete("/:id/comment", authenticateToken, function (req, res) {
   if (req.params.id) {
-    // Project.findOneAndDelete({ _id: req.params.id })
-    //     .then((project) => {
-    //         res.status(200).send("project deleted successfully")
-    //     }).catch((err) => {
-    //         res.status(500).send("error deleting project")
-    //     })
+    Project.findOneAndDelete({ _id: req.params.id })
+      .then((project) => {
+        res.status(200).send("project deleted successfully");
+      })
+      .catch((err) => {
+        res.status(500).send("error deleting project");
+      });
+  } else {
+    res.status(500).send("Missing id to delete result");
   }
 });
 
@@ -221,7 +227,7 @@ router.post("/:id/result", authenticateToken, function (req, res) {
       });
     });
   }
-})
+});
 
 router.get("/:id/result", authenticateToken, function (req, res) {
   if (req.params.id) {
@@ -233,8 +239,14 @@ router.get("/:id/result", authenticateToken, function (req, res) {
       console.log('err: ' + err)
     });
   }
-})
+});
 
+router.post("/email", authenticateToken, function (req, res, next) {
+  sendMail("finished", "thomas.dalem@epitech.eu", "toto");
+  res.status(500).send("mail sent");
+});
+
+module.exports = router;
 
 router.get("/pdf", function (req, res) {
   if (req.query.id) {
