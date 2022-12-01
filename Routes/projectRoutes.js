@@ -11,6 +11,19 @@ const {
   authenticateManager,
 } = require("../Configs/auth.js");
 
+function saveImageFromURL(url, filename) {
+  var request = require('request').defaults({ encoding: null });
+  request.get(url, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+          data = "data:" + response.headers["content-type"] + ";base64," + new Buffer(body).toString('base64');
+          var base64Data = data.replace(/^data:image\/png;base64,/, "");
+          require("fs").writeFile(filename, base64Data, 'base64', function (err) {
+              console.log(err);
+          });
+      }
+  });
+}
+
 async function getStreetName(lat, lon) {
   var streetName = await fetch('https://nominatim.openstreetmap.org/reverse?lat=' + lat + '&lon=' + lon + '&zoom=16', {
     headers: {
@@ -38,6 +51,7 @@ router.get("", authenticateToken, function (req, res) {
   if (req.query.id) {
     Project.findById(req.query.id)
       .then((projects) => {
+        saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran/screen/LPCTNBUQbzFmPOuW/screenshot?url=https://dashboard.signai.fr/map/6387e3b27b99f1838c09e2e8&inline=show&full_page=true&delay=5&viewport=1903x941", project._id.toString() + ".png")
         res.status(200).send(projects);
       })
       .catch((err) => {
@@ -215,6 +229,7 @@ router.post("/:id/result", authenticateToken, function (req, res) {
       data = { "results": data };
       Project.findOneAndUpdate(filter, data).then((results) => {
         res.status(200).send(results);
+//        saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran/screen/LPCTNBUQbzFmPOuW/screenshot?url=https://dashboard.signai.fr/map-results/6387e3b27b99f1838c09e2e8&inline=show&full_page=true&delay=5&viewport=1903x941", req.params.id + ".png")
       }).catch((err) => {
         res.status(500).send(err);
         console.log('err: ' + err)

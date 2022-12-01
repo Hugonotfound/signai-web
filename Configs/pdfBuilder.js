@@ -1,6 +1,32 @@
 const PDFDocument = require('pdfkit');
 
-function buildPDF(dataCallback, endCallback, project) {
+
+
+
+function getNumberBytypes(elements, type) {
+    let number = 0;
+    elements.forEach(element => {
+        if (element.type == type)
+            number = number + 1
+    })
+    return number;
+}
+
+function getTypes(elements) {
+    let types = [];
+    elements.forEach(element => {
+        if (types.includes(element.type)) {
+        } else {
+            types.push(element.type)
+        }
+    })
+    return types
+}
+
+async function buildPDF(dataCallback, endCallback, project) {
+    let projectId = project._id.toString();
+
+
     const doc = new PDFDocument({ bufferPages: true, font: 'Helvetica', size: 'A4' });
 
     doc.on('data', dataCallback);
@@ -179,7 +205,7 @@ function buildPDF(dataCallback, endCallback, project) {
         .fillColor('black')
         .fontSize(14)
         .text(
-            "Création", 100, 200, {
+            "1. Création", 100, 200, {
             width: 500,
             align: 'left'
         }
@@ -200,7 +226,7 @@ function buildPDF(dataCallback, endCallback, project) {
         .fillColor('black')
         .fontSize(14)
         .text(
-            "Exécution", 100, 340, {
+            "2. Exécution", 100, 340, {
             width: 500,
             align: 'left'
         }
@@ -221,7 +247,7 @@ function buildPDF(dataCallback, endCallback, project) {
         .fillColor('black')
         .fontSize(14)
         .text(
-            "Vérification", 100, 510, {
+            "3. Vérification", 100, 510, {
             width: 500,
             align: 'left'
         }
@@ -242,7 +268,7 @@ function buildPDF(dataCallback, endCallback, project) {
         .fillColor('black')
         .fontSize(14)
         .text(
-            "Terminé", 100, 620, {
+            "4. Terminé", 100, 620, {
             width: 500,
             align: 'left'
         }
@@ -300,7 +326,7 @@ function buildPDF(dataCallback, endCallback, project) {
         .fillColor('black')
         .fontSize(14)
         .text(
-            'Adresse de départ : ' + project.departAddress +"\n                                 (" + project.longitude +", " + project.latitude +")", 55, 90, {
+            'Adresse de départ : ' + project.departAddress + "\n                                 (" + project.longitude + ", " + project.latitude + ")", 55, 90, {
             width: 500,
             align: 'justify'
         }
@@ -310,12 +336,12 @@ function buildPDF(dataCallback, endCallback, project) {
         .fillColor('black')
         .fontSize(14)
         .text(
-            'Rayon d\'action : ' + project.radius+" mètres", 55, 130, {
+            'Rayon d\'action : ' + project.radius + " mètres", 55, 130, {
             width: 500,
             align: 'justify'
         }
         );
-        doc
+    doc
         .font("Helvetica")
         .fillColor('black')
         .fontSize(14)
@@ -325,21 +351,393 @@ function buildPDF(dataCallback, endCallback, project) {
             align: 'justify'
         }
         );
-    project.contraints.forEach(element => {
+
+    if (project.contraints.length > 0) {
+        let types = getTypes(project.contraints)
+
+        types.forEach(type => {
+            let number = getNumberBytypes(project.contraints, type).toString()
+            let sentence = ""
+
+            if (type == "sign")
+                sentence = "Paneaux"
+            if (type == "trafficlight")
+                sentence = "Feu de Signalisation"
+            if (type == "stop")
+                sentence = "Panneau Stop"
+            if (type == "yield")
+                sentence = "Cédez le Passage"
+            if (type == "roundabout")
+                sentence = "Carrefour à sens giratoire"
+
+            doc
+                .font("Helvetica")
+                .fillColor('black')
+                .fontSize(14)
+                .text(
+                    number.toString() + " " + (sentence != "" ? sentence : type) + ': ', {
+                    width: 410,
+                    indent: 14,
+                    lineGap: 7,
+                    align: 'left'
+                }
+                );
+
+            project.contraints.forEach(element => {
+                if (element.type == type)
+                    doc
+                        .font("Helvetica")
+                        .fillColor('purple')
+                        .fontSize(12)
+                        .text(
+                            "- " + element.streetName, {
+                            width: 410,
+                            indent: 20,
+                            lineGap: 7,
+                            align: 'left'
+                        }
+                        );
+            })
+        });
+    }
+    doc.image(projectId + ".png", 50, 440, { fit: [500, 1000], align: 'center' })
+    doc
+        .font("Helvetica")
+        .fillColor('black')
+        .fontSize(10)
+        .text(
+            "La carte interactive est disponible sur : https://dashboard.signai.com/view/" + projectId, 30, 700, {
+            width: 500,
+            indent: 20,
+            lineGap: 7,
+            align: 'left'
+        }
+        );
+
+
+
+
+
+    doc.font("Helvetica").fontSize(10).fillColor('grey').text(project.company + ' - ' + project.name, 30, 760, {
+        width: 550,
+        align: 'left'
+    })
+    doc.font("Helvetica").fontSize(10).fillColor('grey').text(doc.bufferedPageRange().count, 30, 760, {
+        width: 550,
+        align: 'right'
+    })
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////// Nouvelle page 
+
+    doc.addPage({
+        margins: {
+            top: 0,
+            bottom: 0,
+            left: 72,
+            right: 72
+        }
+    })
+    doc.font("Helvetica").fontSize(10).fillColor('grey').text('SignAI - Proposition de signalisation', 55, 20, {
+        width: 500,
+        align: 'center'
+    })
+
+
+    doc
+        .font("Helvetica-Bold")
+        .fillColor('black')
+        .fontSize(20)
+        .text(
+            'Résultat après le passage de l\'IA', 55, 60, {
+            width: 500,
+            align: 'left'
+        }
+        );
+
+    if (project.results.length > 0) {
+        let types = getTypes(project.results)
+
+        types.forEach(type => {
+            let number = getNumberBytypes(project.results, type).toString()
+            let sentence = ""
+
+            if (type == "Panneaux")
+                sentence = "Changement de Panneaux"
+            if (type == "speed")
+                sentence = "Modification de la vitesse"
+            if (type == "traffic_light")
+                sentence = "Cycles de feux de signalisation modifiés"
+            if (type == "priority_up")
+                sentence = "Augmentation de la priorité"
+            if (type == "priority_down")
+                sentence = "Priorité de la route baissé"
+
+            doc
+                .font("Helvetica")
+                .fillColor('black')
+                .fontSize(14)
+                .text(
+                    number.toString() + " " + (sentence != "" ? sentence : type) + ': ', {
+                    width: 410,
+                    indent: 14,
+                    lineGap: 7,
+                    align: 'left'
+                }
+                );
+
+            project.results.forEach(element => {
+                if (element.type == type) {
+                    doc
+                        .font("Helvetica")
+                        .fillColor('purple')
+                        .fontSize(12)
+                        .text(
+                            "- " + (element.type == "sign" ? (element.value) : '') + element.streetName + " (" + element.coordonateX + ", " + element.coordonateY + ")", {
+                            width: 410,
+                            indent: 20,
+                            lineGap: 7,
+                            align: 'left'
+                        }
+                        );
+
+                    if (element.type == "traffic_light") {
+                        let cyclesline = "";
+                        element.value.split("'newTlCycle': [")[1].split("}]}, {").forEach((cycle) => {
+                            cyclesline += "Cycle " + cycle.split("'")[3] + " : " + cycle.split("'")[7] + " secondes"
+                            if (cycle.split("'")[3] == "3")
+                                cyclesline += "\n"
+                            else
+                                cyclesline += " || "
+                        })
+                        doc
+                        .font("Helvetica")
+                        .fillColor('black')
+                        .fontSize(12)
+                        .text(
+                            cyclesline, {
+                            width: 410,
+                            indent: 30,
+                            lineGap: 7,
+                            align: 'left'
+                        }
+                        );
+                    }
+                }
+            })
+        });
+    }
+    doc.image(projectId + "-results.png", 50, 440, { fit: [500, 1000], align: 'center' })
+    doc
+        .font("Helvetica")
+        .fillColor('black')
+        .fontSize(10)
+        .text(
+            "La carte interactive est disponible sur : https://dashboard.signai.com/view/" + projectId, 30, 700, {
+            width: 500,
+            indent: 20,
+            lineGap: 7,
+            align: 'left'
+        }
+        );
+
+
+
+
+
+
+        
+
+    doc.font("Helvetica").fontSize(10).fillColor('grey').text(project.company + ' - ' + project.name, 30, 760, {
+        width: 550,
+        align: 'left'
+    })
+    doc.font("Helvetica").fontSize(10).fillColor('grey').text(doc.bufferedPageRange().count, 30, 760, {
+        width: 550,
+        align: 'right'
+    })
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////// Nouvelle page 
+
+    doc.addPage({
+        margins: {
+            top: 0,
+            bottom: 0,
+            left: 72,
+            right: 72
+        }
+    })
+    doc.font("Helvetica").fontSize(10).fillColor('grey').text('SignAI - Proposition de signalisation', 55, 20, {
+        width: 500,
+        align: 'center'
+    })
+
+
+    doc
+        .font("Helvetica-Bold")
+        .fillColor('black')
+        .fontSize(20)
+        .text(
+            'Amélioration suites aux propositions de l\'IA', 55, 60, {
+            width: 500,
+            align: 'left'
+        }
+        );
+
+    doc.image("graph-one"+ ".png", 100, 100, { fit: [400, 1000], align: 'center' })
+
+    doc.image("graph-two"+ ".png", 100, 420, { fit: [400, 1000], align: 'center' })
+
+
+
+
+    doc.font("Helvetica").fontSize(10).fillColor('grey').text(project.company + ' - ' + project.name, 30, 760, {
+        width: 550,
+        align: 'left'
+    })
+    doc.font("Helvetica").fontSize(10).fillColor('grey').text(doc.bufferedPageRange().count, 30, 760, {
+        width: 550,
+        align: 'right'
+    })
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////// Nouvelle page 
+
+    doc.addPage({
+        margins: {
+            top: 0,
+            bottom: 0,
+            left: 72,
+            right: 72
+        }
+    })
+    doc.font("Helvetica").fontSize(10).fillColor('grey').text('SignAI - Proposition de signalisation', 55, 20, {
+        width: 500,
+        align: 'center'
+    })
+
+
+    doc
+        .font("Helvetica-Bold")
+        .fillColor('black')
+        .fontSize(20)
+        .text(
+            'Contact', 55, 60, {
+            width: 500,
+            align: 'left'
+        }
+        );
+
         doc
-            .font("Helvetica")
-            .fillColor('black')
-            .fontSize(14)
-            .text(
-                element.type + ': ' + element.longitude + " / " + element.latitude, {
-                width: 410,
-                indent: 14,
-                lineGap: 7,
-                align: 'left'
-            }
-            );
-    });
+        .font("Helvetica-Bold")
+        .fillColor('black')
+        .fontSize(14)
+        .text(
+            'Votre Conseiller Signai ', 55, 90, {
+            width: 500,
+            align: 'justify'
+        }
+        );
+
+        doc
+        .font("Helvetica-Bold")
+        .fillColor('black')
+        .fontSize(14)
+        .text(
+            'Sitpi RAJENDRAN', 55, 120, {
+            width: 500,
+            indent: 20,
+            align: 'justify'
+        }
+        );
+        doc
+        .font("Helvetica")
+        .fillColor('blue')
+        .fontSize(14)
+        .text(
+            'Email: sitpi@signai.fr', 55, 140, {
+            width: 500,
+            indent: 20,
+            align: 'justify'
+        }
+        );
+
+        doc
+        .font("Helvetica")
+        .fillColor('black')
+        .fontSize(14)
+        .text(
+            'Téléphone: +33.6.66.66.66.66', 55, 160, {
+            width: 500,
+            indent: 20,
+            align: 'justify'
+        }
+        );
+
+    doc
+        .font("Helvetica-Bold")
+        .fillColor('black')
+        .fontSize(14)
+        .text(
+            'Un problème avec votre conseiller, ou une autre demande ', 55, 190, {
+            width: 500,
+            align: 'justify'
+        }
+        );
+
+        doc
+        .font("Helvetica-Bold")
+        .fillColor('black')
+        .fontSize(14)
+        .text(
+            'L\'équipe Signai', 55, 210, {
+            width: 500,
+            indent: 20,
+            align: 'justify'
+        }
+        );
+        doc
+        .font("Helvetica")
+        .fillColor('blue')
+        .fontSize(14)
+        .text(
+            'Email: support@signai.fr', 55, 230, {
+            width: 500,
+            indent: 20,
+            align: 'justify'
+        }
+        );
+
+        doc
+        .font("Helvetica-Bold")
+        .fillColor('black')
+        .fontSize(14)
+        .text(
+            'Notre site internet', 55, 260, {
+            width: 500,
+            align: 'justify'
+        }
+        );
+
+        doc
+        .font("Helvetica")
+        .fillColor('blue')
+        .fontSize(14)
+        .text(
+            'https://www.signai.fr', 55, 280, {
+            width: 500,
+            indent: 20,
+            align: 'justify'
+        }
+        );
+        doc.font("Helvetica").fontSize(10).fillColor('grey').text(project.company + ' - ' + project.name, 30, 760, {
+            width: 550,
+            align: 'left'
+        })
+        doc.font("Helvetica").fontSize(10).fillColor('grey').text(doc.bufferedPageRange().count, 30, 760, {
+            width: 550,
+            align: 'right'
+        })
     doc.end();
+
 }
 
 module.exports = { buildPDF };
