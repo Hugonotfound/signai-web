@@ -10,12 +10,32 @@ const authRouter = require('./Routes/authRoutes.js');
 const userRouter = require('./Routes/userRoutes.js');
 const projectRouter = require('./Routes/projectRoutes.js');
 const graphicRouter = require('./Routes/graphicRoutes.js');
+const {sendMail} = require('./Services/mailer.js');
 const cron = require('node-cron');
 const Project = require('./Models/project');
+const { authenticateToken } = require('./Configs/auth.js');
 /* const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerDocument = require('./swagger.json')
+const {sendMail} = require("./Configs/mailer.js")
 
-const swaggerDocument = require('./swagger.json') */
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      title: "SignAI Backend",
+      description: "yes.",
+      contact: {
+        name: "Hugo Poisot"
+      },
+      servers: ["http://localhost:3001"]
+    },
+  },
+  apis: ["app.js"]
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.get('/documentation', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+*/
 //MONGOOSE
 mongoose.connect("mongodb+srv://sitpi:" + process.env.DB_PASS + "@cluster.hxvcw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
   {
@@ -42,25 +62,33 @@ function handleChangedProjects()
 {
   Project.find().then(async function (res) {
     if (res) {
-      for (const project of res) {
+      for (let project of res) {
         if (project.status === "downloaded" && project.createdEmailSent == false) {
           console.log("Envoi email projet en cours");
-          // TODO: envoyer email
-          project.createdEmailSent = true;
-          try {
-            await project.save();
-          } catch (error) {
-            console.log('Skipped');
-          }
+          // sendMail('starting', project.observators, project.name, project.id)
+          Project.findOneAndUpdate(
+            { _id: project.id},
+            {
+              $push: { createdEmailSent: true }
+            }
+          ).then((res) => {
+            console.log('update')
+          }).catch((err) => {
+            console.log('pas update')
+          })
         } else if (project.status === "finished" && project.finishedEmailSent == false) {
           console.log("Envoi email projet fini");
-          // TODO: envoyer email
-          project.finishedEmailSent = true;
-          try {
-            await project.save();
-          } catch (error) {
-            console.log('Skipped');
-          }
+          // sendMail('finished', project.observators, project.name, project.id)
+          Project.findOneAndUpdate(
+            { _id: project.id},
+            {
+              $push: { finishedEmailSent: true }
+            }
+          ).then((res) => {
+            console.log('update')
+          }).catch((err) => {
+            console.log('pas update')
+          })
         }
       }
     } else {
@@ -69,7 +97,7 @@ function handleChangedProjects()
   });
 }
 
-//cron.schedule('*/3 * * * * *', handleChangedProjects);
+cron.schedule('*/30 * * * * *', handleChangedProjects);
 
 /* const swaggerOptions = {
   swaggerDefinition: {
@@ -94,6 +122,15 @@ app.get('/up', function (req, res, next) {
     return;
   }
   res.type('txt').send('Server is Up');
+});
+
+app.post('/email', authenticateToken, function(req, res, next) {
+  if (req.body.mailType && req.body.emails && req.body.projectName && req.body.projectId) {
+    res.status(400).send('email sent.');
+    sendMail(req.body.mailType, req.body.emails, req.body.projectName, req.body.projectId)
+  } else {
+    res.status(500).send('missing args.');
+  }
 });
 
 app.get('/.well-known/acme-challenge/cGd9VXi3TNq6qjpGABCJwayIoElX3U51FOedHK4xHgg', function (req, res, next) {
