@@ -84,7 +84,7 @@ router.get("/list", authenticateToken, function (req, res) {
 
 router.post("", authenticateToken, function (req, res) {
   let newContraints = [];
-  if (req.body.contraints != undefined) {
+  if (req.body.contraints.length > 0) {
     req.body.contraints.forEach((elem, index, array) => {
       let status = false;
       if (index === array.length - 1) {
