@@ -15,13 +15,13 @@ const {
 function saveImageFromURL(url, filename) {
   var request = require('request').defaults({ encoding: null });
   request.get(url, function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-          data = "data:" + response.headers["content-type"] + ";base64," + new Buffer(body).toString('base64');
-          var base64Data = data.replace(/^data:image\/png;base64,/, "");
-          require("fs").writeFile(filename, base64Data, 'base64', function (err) {
-              console.log(err);
-          });
-      }
+    if (!error && response.statusCode == 200) {
+      data = "data:" + response.headers["content-type"] + ";base64," + new Buffer(body).toString('base64');
+      var base64Data = data.replace(/^data:image\/png;base64,/, "");
+      require("fs").writeFile(filename, base64Data, 'base64', function (err) {
+        console.log(err);
+      });
+    }
   });
 }
 
@@ -40,9 +40,9 @@ async function getStreetName(lat, lon) {
       if (res.indexOf('<road>') != -1)
         return res.slice(res.indexOf('<road>') + 6, res.indexOf('</road>'))
       else
-        return (lat.slice(0,5) + ", " + lon.slice(0,5))
+        return (lat.slice(0, 5) + ", " + lon.slice(0, 5))
     } else
-      return (lat.slice(0,5) + ", " + lon.slice(0,5))
+      return (lat.slice(0, 5) + ", " + lon.slice(0, 5))
   })
   return streetName
 }
@@ -118,7 +118,7 @@ router.post("", authenticateToken, function (req, res) {
             .save()
             .then((project) => {
               res.status(201).send(project);
-//              saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran/screen/LPCTNBUQbzFmPOuW/screenshot?url=https://dashboard.signai.fr/map/6387e3b27b99f1838c09e2e8&inline=show&full_page=true&delay=5&viewport=1903x941", project._id.toString() + ".png")
+              //              saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran/screen/LPCTNBUQbzFmPOuW/screenshot?url=https://dashboard.signai.fr/map/6387e3b27b99f1838c09e2e8&inline=show&full_page=true&delay=5&viewport=1903x941", project._id.toString() + ".png")
               sendMail("created", project.observators, project.name, project.id);
             })
             .catch((error) => {
@@ -235,7 +235,7 @@ router.post("/:id/result", authenticateToken, function (req, res) {
       data = { "results": data };
       Project.findOneAndUpdate(filter, data).then((results) => {
         res.status(200).send(results);
-//        saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran/screen/LPCTNBUQbzFmPOuW/screenshot?url=https://dashboard.signai.fr/map-results/6387e3b27b99f1838c09e2e8&inline=show&full_page=true&delay=5&viewport=1903x941", req.params.id + "-results.png")
+        //        saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran/screen/LPCTNBUQbzFmPOuW/screenshot?url=https://dashboard.signai.fr/map-results/6387e3b27b99f1838c09e2e8&inline=show&full_page=true&delay=5&viewport=1903x941", req.params.id + "-results.png")
       }).catch((err) => {
         res.status(500).send(err);
         console.log('err: ' + err)
@@ -267,15 +267,20 @@ router.get("/pdf", function (req, res) {
   if (req.query.id) {
     Project.findById(req.query.id)
       .then((project) => {
-        const stream = res.writeHead(200, {
-          'Content-Type': 'application/pdf',
-          //          'Content-Disposition': `attachment;filename=invoice.pdf`,
-        });
-        pdfService.buildPDF(
-          (chunk) => stream.write(chunk),
-          () => stream.end(),
-          project
-        );
+        if (project.status == "finished") {
+          const stream = res.writeHead(200, {
+            'Content-Type': 'application/pdf',
+            //          'Content-Disposition': `attachment;filename=invoice.pdf`,
+          });
+          pdfService.buildPDF(
+            (chunk) => stream.write(chunk),
+            () => stream.end(),
+            project
+          );
+        }
+        else {
+          res.status(500).send("Project not finished");
+        }
       })
       .catch((err) => {
         res.status(501).send(err);
