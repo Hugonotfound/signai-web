@@ -1,7 +1,5 @@
 const PDFDocument = require('pdfkit');
-
-
-
+const fs = require('fs');
 
 function getNumberBytypes(elements, type) {
     let number = 0;
@@ -11,6 +9,17 @@ function getNumberBytypes(elements, type) {
     })
     return number;
 }
+
+//check file if exist
+function checkFileExist(path) {
+    try {
+        fs.accessSync(path, fs.constants.F_OK);
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
 
 function getTypes(elements) {
     let types = [];
@@ -400,7 +409,8 @@ async function buildPDF(dataCallback, endCallback, project) {
             })
         });
     }
-    doc.image(projectId + ".png", 50, 440, { fit: [500, 1000], align: 'center' })
+    if (checkFileExist(projectId + ".png"))
+      doc.image(projectId + ".png", 50, 440, { fit: [500, 1000], align: 'center' })
     doc
         .font("Helvetica")
         .fillColor('black')
@@ -526,7 +536,8 @@ async function buildPDF(dataCallback, endCallback, project) {
             })
         });
     }
-    doc.image(projectId + "-results.png", 50, 440, { fit: [500, 1000], align: 'center' })
+    if (checkFileExist(projectId + "-results.png"))
+      doc.image(projectId + "-results.png", 50, 440, { fit: [500, 1000], align: 'center' })
     doc
         .font("Helvetica")
         .fillColor('black')
