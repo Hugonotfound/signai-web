@@ -235,7 +235,7 @@ router.post("/:id/result", authenticateToken, function (req, res) {
       data = { "results": data };
       Project.findOneAndUpdate(filter, data).then((results) => {
         res.status(200).send(results);
-        saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran2/screen/oqCaczeIIUnAHfcO/screenshot?url=https://dashboard.signai.fr/map-results/" + results._id.toString() + "&inline=show&full_page=true&delay=15&viewport=1903x941", req.params.id + "-results.png")
+        saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran2/screen/oqCaczeIIUnAHfcO/screenshot?url=https://dashboard.signai.fr/map-results/" + results._id.toString() + "&inline=show&full_page=true&delay=30&viewport=1903x941", req.params.id + "-results.png")
       }).catch((err) => {
         res.status(500).send(err);
         console.log('err: ' + err)
