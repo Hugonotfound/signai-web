@@ -40,9 +40,9 @@ async function getStreetName(lat, lon) {
       if (res.indexOf('<road>') != -1)
         return res.slice(res.indexOf('<road>') + 6, res.indexOf('</road>'))
       else
-        return (lat.slice(0, 5) + ", " + lon.slice(0, 5))
+        return (lat.toString().slice(0, 5) + ", " + lon.toString().slice(0, 5))
     } else
-      return (lat.slice(0, 5) + ", " + lon.slice(0, 5))
+      return (lat.toString().slice(0, 5) + ", " + lon.toString().slice(0, 5))
   })
   return streetName
 }
@@ -84,7 +84,7 @@ router.get("/list", authenticateToken, function (req, res) {
 
 router.post("", authenticateToken, function (req, res) {
   let newContraints = [];
-  if (req.body.contraints.length > 0) {
+  if (req.body.contraints != undefined && req.body.contraints.length > 0) {
     req.body.contraints.forEach((elem, index, array) => {
       let status = false;
       if (index === array.length - 1) {
