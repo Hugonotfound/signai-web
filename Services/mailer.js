@@ -74,10 +74,10 @@ async function sendMail(emailType, emailAddress, projectName, projectId) {
       ],
     };
     const res = await transport.sendMail(mailOptions);
-    console.log(res);
+//    console.log(res);
     return res;
   } catch (e) {
-    console.log(e);
+    //console.log(e);
     return e;
   }
 }

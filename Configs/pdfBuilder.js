@@ -416,7 +416,7 @@ async function buildPDF(dataCallback, endCallback, project) {
         .fillColor('black')
         .fontSize(10)
         .text(
-            "La carte interactive est disponible sur : https://dashboard.signai.com/view/" + projectId, 30, 700, {
+            "La carte interactive est disponible sur : https://dashboard.signai.fr/view/" + projectId, 30, 700, {
             width: 500,
             indent: 20,
             lineGap: 7,
@@ -543,7 +543,7 @@ async function buildPDF(dataCallback, endCallback, project) {
         .fillColor('black')
         .fontSize(10)
         .text(
-            "La carte interactive est disponible sur : https://dashboard.signai.com/view/" + projectId, 30, 700, {
+            "La carte interactive est disponible sur : https://dashboard.signai.fr/view/" + projectId, 30, 700, {
             width: 500,
             indent: 20,
             lineGap: 7,
