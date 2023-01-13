@@ -82,51 +82,54 @@ router.get("/list", authenticateToken, function (req, res) {
   }
 });
 
+function pushToDB(req, res, newContraints) {
+  console.log("newContraints =")
+  console.log(newContraints)
+  const newProject = new Project({
+    name: req.body.name,
+    description: req.body.description,
+    longitude: req.body.departPositionLong,
+    latitude: req.body.departPositionLat,
+    departAddress: req.body.departAddress,
+    radius: req.body.radius,
+    contraints: newContraints,
+    company: req.body.company,
+    managers: req.body.managers,
+    observators: req.body.observators,
+    status: "created",
+  })
+  newProject
+    .save()
+    .then((project) => {
+      saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran2/screen/oqCaczeIIUnAHfcO/screenshot?url=https://dashboard.signai.fr/map/" + project._id.toString() + "&inline=show&full_page=true&delay=60&viewport=1903x941", project._id.toString() + ".png")
+      //sendMail("created", project.observators, project.name, project.id);
+      res.status(201).send(project);
+    })
+    .catch((error) => {
+      console.log(error)
+      res.status(500).send(error);
+    });
+}
+
 router.post("", authenticateToken, function (req, res) {
   let newContraints = [];
+  let itemProcessed = 0;
   if (req.body.contraints != undefined && req.body.contraints.length > 0) {
-    req.body.contraints.forEach((elem, index, array) => {
-      let status = false;
-      if (index === array.length - 1) {
-        status = true;
+    req.body.contraints.forEach(async (elem, index, array) => {
+      let streetNameRes = await getStreetName(elem.latitude, elem.longitude)
+      let newContraint = {
+        type: elem.type,
+        longitude: elem.longitude,
+        latitude: elem.latitude,
+        streetName: streetNameRes
+      };
+      console.log(newContraint)
+      newContraints.push(newContraint);
+      itemProcessed++;
+      if(itemProcessed === array.length) {
+        pushToDB(req, res, newContraints);
       }
-      getStreetName(elem.latitude, elem.longitude).then((streetNameRes) => {
-        newContraint = {
-          type: elem.type,
-          longitude: elem.longitude,
-          latitude: elem.latitude,
-          streetName: streetNameRes
-        };
-        newContraints.push(newContraint);
-        return newContraints;
-      }).then((constraints) => {
-        if (status == true) {
-          const newProject = new Project({
-            name: req.body.name,
-            description: req.body.description,
-            longitude: req.body.departPositionLong,
-            latitude: req.body.departPositionLat,
-            departAddress: req.body.departAddress,
-            radius: req.body.radius,
-            contraints: constraints,
-            company: req.body.company,
-            managers: req.body.managers,
-            observators: req.body.observators,
-            status: "created",
-          })
-          newProject
-            .save()
-            .then((project) => {
-              saveImageFromURL("https://v1.nocodeapi.com/sitpirajendran2/screen/oqCaczeIIUnAHfcO/screenshot?url=https://dashboard.signai.fr/map/" + project._id.toString() + "&inline=show&full_page=true&delay=60&viewport=1903x941", project._id.toString() + ".png")
-              //sendMail("created", project.observators, project.name, project.id);
-              res.status(201).send(project);
-            })
-            .catch((error) => {
-              console.log(error)
-              res.status(500).send(error);
-            });
-        }
-      });
+      return newContraints;
     });
   } else {
     const newProject = new Project({
